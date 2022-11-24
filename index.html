@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>压力测试报告</title>
+    <script src="./static/jquery.min.js"></script>
+    <script src="./static/echarts.min.js"></script>
+    <script src="./static/theme.js"></script>
+
+  </head>
+
+  <body>
+    <h1 align="center" style="font-family: Arial, Helvetica, sans-serif">
+      压力测试报告
+    </h1>
+    <script type="text/javascript">
+      // echarts全局配置
+      var globalOption = {
+        tooltip: {
+          trigger: "axis",
+        },
+        toolbox: {
+          feature: {
+            dataView: { show: true, readOnly: true },
+            saveAsImage: { show: true },
+          },
+        },
+      };
+      var global_traffic = {
+        legend: {
+          data: ["上传", "下载", "混合", "错误率"],
+          top: "465",
+        },
+
+        yAxis: [
+          {
+            type: "value",
+            name: "传输速率(KB/s)",
+
+            axisLabel: {
+              formatter: "{value}",
+            },
+          },
+          {
+            type: "value",
+            name: "错误率",
+            min: 0,
+            max: 100,
+            interval: 20,
+            axisLabel: {
+              formatter: "{value} %",
+            },
+          },
+        ],
+      };
+      var global_tps = {
+        legend: {
+          data: [
+            "上传响应时间",
+            "下载响应时间",
+            "混合响应时间",
+            "上传TPS",
+            "下载TPS",
+            "混合TPS",
+          ],
+          top: "465",
+        },
+
+        yAxis: [
+          {
+            type: "value",
+            name: "响应时间(ms)",
+
+            axisLabel: {
+              formatter: "{value}",
+            },
+          },
+          {
+            type: "value",
+            name: "Transactions/s",
+            axisLabel: {
+              formatter: "{value}",
+            },
+          },
+        ],
+      };
+      // ####################################echarts表格数据####################################
+      $.get(
+        "data.json",
+        function (data) {
+          for (let chart_data of data) {
+            var chart_name = chart_data["size"] + "_" + chart_data["type"];
+            //console.log(chart_name)
+
+            var div = document.createElement("div");
+            div.className = "chart";
+            div.style = "height: 500px; width: 50%;float: left;";
+            div.id = chart_name;
+            document.body.appendChild(div);
+
+            var myChart = echarts.init(document.getElementById(chart_name),"chalk");
+            if (chart_data["type"] == "traffic") {
+              var options = Object.assign(
+                {},
+                globalOption,
+                global_traffic,
+                chart_data
+              );
+            }
+            if (chart_data["type"] == "transaction") {
+              var options = Object.assign(
+                {},
+                globalOption,
+                global_tps,
+                chart_data
+              );
+            }
+            myChart.setOption(options);
+          }
+        },
+        "json"
+      );
+    </script>
+    <!-- 为ECharts自动生成具备大小（宽高）的Dom -->
+  </body>
+</html>
